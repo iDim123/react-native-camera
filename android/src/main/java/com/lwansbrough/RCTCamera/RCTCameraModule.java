@@ -546,9 +546,20 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         Camera.PictureCallback captureCallback = new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(final byte[] data, Camera camera) {
+                boolean gotCorrect = false;
+                int count = 0;
                 camera.stopPreview();
-                camera.startPreview();
-
+                while(!gotCorrect) {
+                    try {
+                        camera.startPreview();
+                        gotCorrect = true;
+                    } catch(Exception e) {
+                        if(count > 10) break;
+                        count++;
+                        Runtime.getRuntime().gc();
+                        continue;
+                    }
+                }
                 AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
